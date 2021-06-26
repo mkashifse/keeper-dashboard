@@ -3,8 +3,8 @@ import './App.css';
 import getWeb3 from './getWeb3';
 import FairCrowdPrice from './contracts/FairCrowdPrice.json';
 import moment from 'moment';
-import { } from './untils';
-import { DataTable } from './DataTable';
+import { generateTestData, mapKeepersData } from './untils';
+import { DataTable, DataTableV2 } from './DataTable';
 
 
 function App() {
@@ -15,6 +15,10 @@ function App() {
   const [price, setPrice] = useState('3000000');
   const [keeperData, setKeeperData] = useState([]);
   const [winnerData, setWinnerData] = useState([]);
+  const [mockData] = useState(mapKeepersData());
+  const [keeper, selectKeeper] = useState(mockData.keepers[0]);
+  const [dataType, setDataType] = useState('priceData');
+
 
   useEffect(() => {
     const init = async () => {
@@ -41,7 +45,7 @@ function App() {
   useEffect(() => {
     fetchFairPriceList();
     getPastWinnerData();
-  }, [contract])
+  }, [contract, mockData])
 
   const fetchFairPriceList = async () => {
     if (!contract) return;
@@ -81,6 +85,50 @@ function App() {
     }
   }
 
+  const getSelectedDataType = () => {
+    if (dataType && mockData.keepersMap[keeper]) {
+      return {
+        data: mockData.keepersMap[keeper][dataType],
+        columns: dataType === 'priceData' ? ['trx', 'gas', 'keeper', 'price', 'timestamp'] : ['trx', 'keeper', 'winningAmount', 'timestamp']
+      };
+    } else {
+      return {
+        data: [],
+        columns: []
+      };
+    }
+  }
+
+
+  const getWinningData = () => {
+    const kpr = mockData.keepersMap[keeper];
+    const wData = kpr['winningData'];
+    return wData;
+  }
+
+  const getPriceData = () => {
+    const kpr = mockData.keepersMap[keeper];
+    const pData = kpr['priceData'];
+    return pData
+
+  }
+
+  const getWinRate = () => {
+    const kpr = mockData.keepersMap[keeper];
+    const pData = kpr['priceData'];
+    const wData = kpr['winningData'];
+    return wData.length / pData.length;
+  }
+
+  const totalWin = () => {
+    return getWinningData().map((item: any) => item.winningAmount).reduce((p: any, c: any) => p + c, 0);
+  }
+
+  const totalGas = () => {
+    return getPriceData().map((item: any) => item.gas).reduce((p: any, c: any) => p + c, 0);
+  }
+
+
   if (web3 && contract) {
     return (
       <div>
@@ -97,66 +145,35 @@ function App() {
               </div>
             </div>
             <main className="p-4">
-              <div className="space-x-2 card flex justify-center">
-                <input value={price} type="text" name="" id="" onChange={e => setPrice(e.target.value)} placeholder="Price" />
-                <button onClick={(e) => submitPrice()} >Set Price</button>
-              </div>
-              <div className="flex ">
-                <div className="w-1/2 p-2">
-                  <div className="card">
-                    <table className="w-full" >
-                      <thead>
-                        <tr>
-                          <th className="">#Trx</th>
-                          <th>Keeper</th>
-                          <th>Price</th>
-                          <th>Time</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          keeperData.map((item: any, i) => (
-                            <tr key={i}>
-                              <td className="w-32 truncate">{item.transactionHash}</td>
-                              <td className="w-32 truncate" >{item.returnValues[0].keeper}</td>
-                              <td>{item.returnValues[0].price}</td>
-                              <td>{moment.unix(item.returnValues[0].timestamp).format('YY/MM/DD hh:mm a')}</td>
-                            </tr>
-                          ))
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div className="w-1/2 p-2">
-                  <div className="card overflow-scroll">
-                    <table className="w-full" >
-                      <thead>
-                        <tr>
-                          <th className="">#Trx</th>
-                          <th>Keeper</th>
-                          <th>Reward</th>
-                          <th>Time</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          winnerData.map((item: any, i) => (
-                            <tr key={i}>
-                              <td className="w-32 truncate">{item.transactionHash}</td>
-                              <td className="w-32 truncate" >{item.returnValues[0]}</td>
-                              <td>{item.returnValues[1]}</td>
-                              <td>{moment.unix(item.returnValues[2]).format('YY/MM/DD hh:mm a')}</td>
-                            </tr>
-                          ))
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
               <div>
-                <DataTable />
+                <div>
+
+                </div>
+                <div className="card">
+                  <div className="flex items-center space-x-2">
+                    <div className="space-x-2">
+                      <select onChange={e => selectKeeper(e.target.value)}>
+                        {mockData.keepers.map((id) => <option value={id} >{id}</option>)}
+                      </select>
+                      <select onChange={(e) => setDataType(e.target.value)} >
+                        <option value="priceData">Price Data</option>
+                        <option value="winningData">Winning Data</option>
+                      </select>
+                    </div>
+                    <div className="flex-grow flex items-center  justify-end text-xs space-x-4">
+                      <div> Win Rate: {getWinRate()}</div>
+                      <div> Total Winning Amount: {totalWin()}</div>
+                      <div> Total Gas Spent: {totalGas()}</div>
+                      <div> Net Profit: {totalWin() - totalGas()}</div>
+                    </div>
+                  </div>
+
+                  {
+                    web3 && mockData ?
+                      <DataTableV2 columns={getSelectedDataType().columns} data={getSelectedDataType().data} />
+                      : ''
+                  }
+                </div>
               </div>
             </main>
           </div >

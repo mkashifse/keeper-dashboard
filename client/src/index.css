@@ -21,8 +21,16 @@
     @apply text-left p-2 text-sm;
   }
   
-  tbody tr:nth-child(odd) {
-    @apply bg-gray-200;
+  tbody tr:nth-child(odd) td{
+    @apply bg-gray-200 ;
+  }
+
+  tbody tr:nth-child(odd) td:last-child  {
+    @apply rounded-r-md;
+  }
+
+  tbody tr:nth-child(odd) td:first-child {
+    @apply rounded-l-md;
   }
 
   tbody tr:nth-child(even) {
