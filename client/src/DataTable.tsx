@@ -32,8 +32,24 @@ export const DataTable = ({ columns, rows }: any) => {
 
     }, [data, timeFrame]);
 
+    const getCurrentPage = () => {
+        return page / pageSize + 1
+    }
+
     const next = () => {
-        
+        if (getCurrentPage() < getTotalPages()) {
+            setPage(page + pageSize);
+        }
+    }
+
+    const prev = () => {
+        if (getCurrentPage() > 1) {
+            setPage(page - pageSize);
+        }
+    }
+
+    const getTotalPages = () => {
+        return Math.ceil(filtered.length / pageSize);
     }
 
 
@@ -44,7 +60,7 @@ export const DataTable = ({ columns, rows }: any) => {
                     <div
                         key={item}
                         className={`rounded px-4 h-6 hover:bg-blue-300  flex capitalize ${timeFrame === item ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                        onClick={(e: any) => setTimeFrame(item)} >
+                        onClick={(e: any) => setTimeFrame(item) as any || setPage(0)} >
                         <div className="m-auto">
                             {item}
                         </div>
@@ -53,20 +69,20 @@ export const DataTable = ({ columns, rows }: any) => {
 
                 <div className="flex items-center">
                     <div className="flex items-center">
-                        <div onClick={e => setPage(page - pageSize)} className="h-6 w-8 rounded-l flex bg-gray-100 hover:bg-green-300">
+                        <div onClick={prev} className="h-6 w-8 rounded-l flex bg-gray-100 hover:bg-green-300">
                             <div className="m-auto">
                                 {`<`}
                             </div>
                         </div>
                         <div className="h-6 px-4 flex bg-gray-100">
                             <div className="m-auto text-xs text-gray-600 font-bold" onClick={e => setPage(0)}>
-                                <span>  {page / pageSize + 1} </span>
+                                <span>  {getCurrentPage()} </span>
                                 <span> / </span>
-                                <span>{Math.round(filtered.length / pageSize) + 1 }</span>
+                                <span>{getTotalPages()}</span>
                             </div>
                         </div>
                         <div
-                            onClick={e => setPage(page + pageSize)}
+                            onClick={next}
                             className="h-6 w-8 rounded-r flex bg-gray-100 hover:bg-green-300">
                             <div className="m-auto">
                                 {`>`}
@@ -87,7 +103,7 @@ export const DataTable = ({ columns, rows }: any) => {
                 </thead>
                 <tbody>
                     {
-                        filtered.slice(page,  page+pageSize).map((item: any, i: number) => (
+                        filtered.slice(page, page + pageSize).map((item: any, i: number) => (
                             <tr key={i}>
                                 <td className="w-32 truncate">{item.trx}</td>
                                 <td className="w-32 truncate" >{item.keeper}</td>
