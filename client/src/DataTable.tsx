@@ -241,7 +241,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
             </div>
             {
                 filtered.length ?
-                    <table className="table-auto w-full" >
+                    <table className="table-auto" >
                         <thead>
                             <tr>
                                 {
