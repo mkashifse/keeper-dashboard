@@ -135,7 +135,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
     const [timeFrame, setTimeFrame] = useState('year');
     const [filtered, setFiltered] = useState<any[]>([]);
     let [page, setPage] = useState(0);
-    const [pageSize] = useState(50);
+    const [pageSize] = useState(15);
 
     useEffect(() => {
         const hr = moment().format('H')
@@ -232,37 +232,47 @@ export const DataTableV2 = ({ data, columns }: any) => {
 
 
     return (
-        <div className="">
+        <div className="h-full flex flex-col" style={{
+            minHeight: '30rem'
+        }}>
             <div className="flex text-sm space-x-2 justify-end cursor-pointer">
                 {TimeFrameControls()} {PagesControl()}
-                <div className="h-6 w-32 text-center bg-gray-100 rounded" style={{ paddingTop: '2px' }}> {filtered.length} TRX </div>
+                <div className="h-6 w-32 text-center bg-gray-100 rounded" style={{ paddingTop: '2px' }}> {filtered.length}  </div>
             </div>
-            <table className="table-auto w-full" >
-                <thead>
-                    <tr>
-                        {
-                            columns.map((td: any) => (
-                                <th className="capitalize">{td}</th>
-                            ))
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        filtered.slice(page, page + pageSize).map((item: any, i: number) => (
-                            <tr key={i}>
+            {
+                filtered.length ?
+                    <table className="table-auto w-full" >
+                        <thead>
+                            <tr>
                                 {
-                                    columns.map((key: any) => (
-                                        <td key={key} className="">{
-                                            getValue(key, item[key])
-                                        }</td>
+                                    columns.map((td: any) => (
+                                        <th className="capitalize">{td}</th>
                                     ))
                                 }
                             </tr>
-                        ))
-                    }
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            {
+                                filtered.slice(page, page + pageSize).map((item: any, i: number) => (
+                                    <tr key={i}>
+                                        {
+                                            columns.map((key: any) => (
+                                                <td key={key} className="">{
+                                                    getValue(key, item[key])
+                                                }</td>
+                                            ))
+                                        }
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+
+                    :
+                    <div className="text-center flex text-xs text-gray-400  flex-grow">
+                        <div className='m-auto'> No Record Found</div>
+                    </div>
+            }
         </div>
     )
 

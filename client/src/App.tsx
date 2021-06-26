@@ -120,12 +120,13 @@ function App() {
     return wData.length / pData.length;
   }
 
-  const totalWin = () => {
+  const totalWin = (): number => {
     return getWinningData().map((item: any) => item.winningAmount).reduce((p: any, c: any) => p + c, 0);
   }
 
-  const totalGas = () => {
-    return getPriceData().map((item: any) => item.gas).reduce((p: any, c: any) => p + c, 0);
+  const totalGas = (): number => {
+    const total = getPriceData().map((item: any) => item.gas).reduce((p: any, c: any) => p + c, 0);
+    return total;
   }
 
 
@@ -134,7 +135,7 @@ function App() {
       <div>
         {
           contract &&
-          < div className="bg-gray-100  w-full space-y-4" >
+          < div className="bg-gray-100  w-full min-h-screen space-y-4" >
             <div className=" border p-4 flex justify-between">
               <div className="text-xs text-gray-500">
                 {contract._address}
