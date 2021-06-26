@@ -2,6 +2,10 @@ import { v4 } from 'uuid';
 import moment from 'moment';
 import Web3 from 'web3';
 
+export const u ={
+    ...Web3.utils
+}
+
 export const generateTestData = () => {
     const priceData = [];
     const winningData = [];

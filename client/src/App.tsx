@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import getWeb3 from './getWeb3';
+import Web3 from 'web3';
 import FairCrowdPrice from './contracts/FairCrowdPrice.json';
 import moment from 'moment';
-import { generateTestData, mapKeepersData } from './untils';
+import { generateTestData, mapKeepersData, u } from './untils';
 import { DataTable, DataTableV2 } from './DataTable';
 
 
@@ -120,13 +121,22 @@ function App() {
     return wData.length / pData.length;
   }
 
-  const totalWin = (): number => {
-    return getWinningData().map((item: any) => item.winningAmount).reduce((p: any, c: any) => p + c, 0);
+  const sumBnList = (bnList: any[]) => {
+    return bnList.reduce((prev: any, cur: any) => prev.add(cur), u.toBN(0)).toString();
   }
 
-  const totalGas = (): number => {
-    const total = getPriceData().map((item: any) => item.gas).reduce((p: any, c: any) => p + c, 0);
-    return total;
+  const totalWin = () => {
+    const bnList = getWinningData().map((item: any) => Web3.utils.toBN(item.winningAmount))
+    return sumBnList(bnList);
+  }
+
+  const totalGas = () => {
+    const bnList = getPriceData().map((item: any) => u.toBN(item.gas));
+    return sumBnList(bnList);
+  }
+
+  const getNetProfit = () => {
+    return u.toBN(totalWin()).sub(u.toBN(totalGas())).toString();
   }
 
 
@@ -163,9 +173,9 @@ function App() {
                     </div>
                     <div className="flex-grow flex items-center  justify-end text-sm space-x-4">
                       <div className="bg-yellow-600 text-white p-1 px-4 rounded"> Rate: {getWinRate()}</div>
-                      <div className="bg-green-500 text-white p-1 px-4 rounded"> Won: {totalWin()}</div>
-                      <div className="bg-red-600 text-white p-1 px-4 rounded "> Gas Spent: {totalGas()}</div>
-                      <div className="bg-green-600 text-white p-1 px-4 rounded "> Net Profit: {totalWin() - totalGas()}</div>
+                      <div className="bg-green-500 text-white p-1 px-4 rounded"> Won: {u.fromWei(totalWin())}</div>
+                      <div className="bg-red-600 text-white p-1 px-4 rounded "> Gas Spent: {u.fromWei(totalGas())}</div>
+                      <div className="bg-green-600 text-white p-1 px-4 rounded "> Net Profit: {u.fromWei(getNetProfit())}</div>
                     </div>
                   </div>
 
