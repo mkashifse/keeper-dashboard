@@ -160,11 +160,11 @@ function App() {
                         <option value="winningData">Winning Data</option>
                       </select>
                     </div>
-                    <div className="flex-grow flex items-center  justify-end text-xs space-x-4">
-                      <div> Win Rate: {getWinRate()}</div>
-                      <div> Total Winning Amount: {totalWin()}</div>
-                      <div> Total Gas Spent: {totalGas()}</div>
-                      <div> Net Profit: {totalWin() - totalGas()}</div>
+                    <div className="flex-grow flex items-center  justify-end text-sm space-x-4">
+                      <div className="bg-yellow-600 text-white p-1 px-4 rounded"> Rate: {getWinRate()}</div>
+                      <div className="bg-green-500 text-white p-1 px-4 rounded"> Won: {totalWin()}</div>
+                      <div className="bg-red-600 text-white p-1 px-4 rounded "> Gas Spent: {totalGas()}</div>
+                      <div className="bg-green-600 text-white p-1 px-4 rounded "> Net Profit: {totalWin() - totalGas()}</div>
                     </div>
                   </div>
 
