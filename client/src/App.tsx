@@ -110,7 +110,7 @@ function App() {
   const getPriceData = () => {
     const kpr = mockData.keepersMap[keeper];
     const pData = kpr['priceData'];
-    return pData
+    return pData;
 
   }
 
@@ -118,7 +118,7 @@ function App() {
     const kpr = mockData.keepersMap[keeper];
     const pData = kpr['priceData'];
     const wData = kpr['winningData'];
-    return wData.length / pData.length;
+    return (wData.length / pData.length).toFixed(4);
   }
 
   const sumBnList = (bnList: any[]) => {
