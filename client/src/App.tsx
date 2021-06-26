@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import getWeb3 from './getWeb3';
 import FairCrowdPrice from './contracts/FairCrowdPrice.json';
@@ -11,7 +10,7 @@ function App() {
   const [contract, setContract] = useState<any>();
   const [contractEther, setContractEther] = useState('');
   const [accounts, setAccounts] = useState([]);
-  const [price, setPrice] = useState('3000');
+  const [price, setPrice] = useState('3000000');
   const [keeperData, setKeeperData] = useState([]);
   const [winnerData, setWinnerData] = useState([]);
 
@@ -20,12 +19,13 @@ function App() {
       // Get network provider and web3 instance.
       const web3: any = await getWeb3();
       setWeb3(web3);
-      web3.eth.defaultAccount = '0x2152e4227c2866d77e4a68cb28371b5082b73aa0';
       const acs = await web3.eth.getAccounts()
+      web3.eth.defaultAccount = '0x2152e4227c2866d77e4a68cb28371b5082b73aa0';
       setAccounts(acs);
-      console.log(acs);
       const networkId = await web3.eth.net.getId();
       const network: any = (FairCrowdPrice.networks as any)[networkId];
+      console.log(FairCrowdPrice.abi, networkId, network);
+
       // Get the contract instance.
       const instance = new web3.eth.Contract(
         FairCrowdPrice.abi,
@@ -45,7 +45,6 @@ function App() {
   const fetchFairPriceList = async () => {
     if (!contract) return;
     const resp = await contract.methods.fairPrices(0).call();
-    console.log(resp);
   }
 
   const submitPrice = async () => {
@@ -63,7 +62,6 @@ function App() {
       toBlock: 'latest'
     }, (error: any, event: any) => {
     }).then((resp: any) => {
-      console.log(resp);
       setKeeperData(resp);
     })
     setContractEther(value);
