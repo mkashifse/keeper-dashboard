@@ -3,6 +3,8 @@ import './App.css';
 import getWeb3 from './getWeb3';
 import FairCrowdPrice from './contracts/FairCrowdPrice.json';
 import moment from 'moment';
+import { } from './untils';
+import { DataTable } from './DataTable';
 
 
 function App() {
@@ -24,7 +26,6 @@ function App() {
       setAccounts(acs);
       const networkId = await web3.eth.net.getId();
       const network: any = (FairCrowdPrice.networks as any)[networkId];
-      console.log(FairCrowdPrice.abi, networkId, network);
 
       // Get the contract instance.
       const instance = new web3.eth.Contract(
@@ -85,7 +86,7 @@ function App() {
       <div>
         {
           contract &&
-          < div className="bg-gray-100 h-screen w-full space-y-4" >
+          < div className="bg-gray-100  w-full space-y-4" >
             <div className=" border p-4 flex justify-between">
               <div className="text-xs text-gray-500">
                 {contract._address}
@@ -153,6 +154,9 @@ function App() {
                     </table>
                   </div>
                 </div>
+              </div>
+              <div>
+                <DataTable />
               </div>
             </main>
           </div >
