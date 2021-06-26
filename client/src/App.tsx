@@ -172,9 +172,7 @@ function App() {
                 <div onClick={e => selectPage('blockchain')} className={selectedPage === 'blockchain' ? 'bg-blue-600 border p-1 px-4 text-white' : 'bg-gray-200 p-1 px-4'}>Blockchain</div>
               </div>
             </div>
-
-
-            <div>
+            <div className="px-4">
               <div className="flex items-center space-x-2">
                 <div className="space-x-2">
                   <select onChange={e => selectKeeper(e.target.value)}>
