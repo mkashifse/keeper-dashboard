@@ -30,9 +30,9 @@ function App() {
       // Get network provider and web3 instance.
       const web3: any = await getWeb3();
       setWeb3(web3);
-      const acs = await web3.eth.getAccounts();
-      web3.eth.defaultAccount = acs[0];
-      setAccounts(acs);
+      // const acs = await web3.eth.getAccounts();
+      // web3.eth.defaultAccount = acs[0];
+      // setAccounts(acs);
       const networkId = await web3.eth.net.getId();
       // const network: any = (FairCrowdPrice.networks as any)[networkId];
       const abi = FariCrowdRenkby; //FairCrowdPrice.abi;
@@ -87,6 +87,8 @@ function App() {
       }, (error: any, event: any) => {
       }).then((resp: any) => {
         const newData = resp.map((item: any) => ({ ...extractNewData(item.returnValues[0]), trx: item.transactionHash, gas }))
+        const addresses = newData.map((item:any)=> item.keeper);
+        setAccounts(Array.from(new Set(addresses)))
         setKeeperData(newData);
       })
     }
@@ -101,6 +103,8 @@ function App() {
       }, (error: any, event: any) => {
       }).then((resp: any) => {
         const winData = resp.map((item: any) => ({ ...extractWinningData(item.returnValues), trx: item.transactionHash }))
+        const addresses = winData.map((item:any)=> item.keeper);
+        setAccounts([...accounts, ...Array.from(new Set(addresses))] as any)
         setWinnerData(winData);
       })
     }
@@ -202,7 +206,7 @@ function App() {
                 selectedPage === 'testnet' ?
                   <div className="text-xs flex-grow text-gray-500">
                     <div>
-                      <span className="font-bold pr-2"> Renkeby Test Net </span> {contract && contract._address}
+                      <span className="font-bold pr-2"> Rinkeby Test Net </span> {contract && contract._address}
                     </div>
                     <div className="mr-3"> { u.fromWei(contractEther)} Ether</div>
                   </div> :
