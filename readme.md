@@ -27,7 +27,7 @@ There are 2 pages in appliaction.
 ### Turrfle React Client 
 The frontend dashboard is developed in React using tailwindcss for design and ofcource web3 for bloackchain calls and BN for big number calculation.
 
-## Application is availible online on the following link
+## Application is live on the following link
 ```
 https://keeperdashboaddapp.web.app/
 ```
