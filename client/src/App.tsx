@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import getWeb3 from './getWeb3';
+import getWeb3, { getWeb3FromWallet } from './getWeb3';
 import Web3 from 'web3';
-import FairCrowdPrice from './contracts/FairCrowdPrice.json';
 import FariCrowdRenkby from './contracts/FariCrowdRenkby.json';
 import { mapKeepersData, u } from './untils';
 import { DataTableV2 } from './DataTable';
@@ -22,7 +21,10 @@ function App() {
   const [selectedPage, selectPage] = useState('local');
   const [gas, setGasFee] = useState('');
   const [pol, setPolling] = useState<any>(null);
-  const [isSubmited, setSubmited] = useState(false);
+  const [isSubmited, setSubmited] = useState(-1);
+  const [walletAccounts, setWalletAccounts] = useState([]);
+  const contractAddress = '0x92dF71B78729FC8CF227Ec749ac98422c1c5f243';// network.address;
+  const abi = FariCrowdRenkby; //FairCrowdPrice.abi;
 
 
   useEffect(() => {
@@ -35,8 +37,6 @@ function App() {
       // setAccounts(acs);
       const networkId = await web3.eth.net.getId();
       // const network: any = (FairCrowdPrice.networks as any)[networkId];
-      const abi = FariCrowdRenkby; //FairCrowdPrice.abi;
-      const contractAddress = '0x92dF71B78729FC8CF227Ec749ac98422c1c5f243';// network.address;
       web3.eth.getGasPrice((e: any, r: any) => {
         setGasFee(r);
       })
@@ -62,13 +62,33 @@ function App() {
   const extractNewData = (v: any) => ({ price: v.price, keeper: v.keeper, timestamp: v.timestamp });
   const extractWinningData = (v: any) => ({ winningAmount: v._reward, keeper: v._keeper, timestamp: v._timestamp });
 
+  const connectWallet = async () => {
+    try {
+      const web3 = await getWeb3FromWallet();
+      const acs = await web3.eth.getAccounts();
+      const instance = new web3.eth.Contract(
+        abi,
+        contractAddress
+      );
+      setWeb3(web3);
+      setWalletAccounts(acs);
+      setContract(instance);
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
 
   const submitPrice = async () => {
-    setSubmited(true);
-    await contract.methods.setPrice(price).send({
-      from: accounts[0]
-    });
-    setSubmited(false);
+    if (walletAccounts.length) {
+      setSubmited(1);
+      await contract.methods.setPrice(price).send({
+        from: walletAccounts[0]
+      });
+      setSubmited(2);
+    } else {
+      // await connectWallet();
+    }
   }
 
   const fetchContractValue = async () => {
@@ -87,8 +107,8 @@ function App() {
       }, (error: any, event: any) => {
       }).then((resp: any) => {
         const newData = resp.map((item: any) => ({ ...extractNewData(item.returnValues[0]), trx: item.transactionHash, gas }))
-        const addresses = newData.map((item:any)=> item.keeper);
-        setAccounts(Array.from(new Set(addresses)))
+        const addresses = newData.map((item: any) => item.keeper);
+        setAccounts([...Array.from(new Set([...accounts, ...addresses]))] as any)
         setKeeperData(newData);
       })
     }
@@ -103,8 +123,8 @@ function App() {
       }, (error: any, event: any) => {
       }).then((resp: any) => {
         const winData = resp.map((item: any) => ({ ...extractWinningData(item.returnValues), trx: item.transactionHash }))
-        const addresses = winData.map((item:any)=> item.keeper);
-        setAccounts([...accounts, ...Array.from(new Set(addresses))] as any)
+        const addresses = winData.map((item: any) => item.keeper);
+        setAccounts([...Array.from(new Set([...accounts, ...addresses]))] as any)
         setWinnerData(winData);
       })
     }
@@ -191,7 +211,6 @@ function App() {
     return u.toBN(totalWin()).sub(u.toBN(totalGas())).toString();
   }
 
-
   return (
     <div className="flex min-h-screen bg-cover"
       style={{
@@ -206,16 +225,19 @@ function App() {
                 selectedPage === 'testnet' ?
                   <div className="text-xs flex-grow text-gray-500">
                     <div>
-                      <span className="font-bold pr-2"> Rinkeby Test Net </span> {contract && contract._address}
+                      <span className="font-bold pr-2 cursor-pointer"> 📋 Rinkeby Test Net  </span>
                     </div>
-                    <div className="mr-3"> { u.fromWei(contractEther)} Ether</div>
+                    <div className="mr-3"> {u.fromWei(contractEther)} Ether</div>
                   </div> :
                   <div className="flex-grow"></div>
               }
 
-              <div className="flex items-center mr-2 text-sm cursor-pointer">
-                <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
-                <div onClick={e => selectPage('testnet')} className={selectedPage === 'testnet' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Testnet</div>
+              <div className="mr-2 text-sm cursor-pointer">
+                <div className="flex items-center justify-end">
+                  <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
+                  <div onClick={e => selectPage('testnet') as any || connectWallet()} className={selectedPage === 'testnet' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Testnet</div>
+                </div>
+                <div className="text-xs mt-2">{walletAccounts[0]}</div>
               </div>
 
             </div>
@@ -244,7 +266,12 @@ function App() {
                   selectedPage === 'testnet' &&
                   <div className="flex space-x-2  justify-center">
                     <input type="text" placeholder="price" value={price} onChange={e => setPrice(e.target.value)} />
-                    <button className={`bg-gradient-to-tr from-blue-600 to-pink-600 bg-opacity-10 text-white ${isSubmited ? 'animate-pulse' : ''}`} onClick={submitPrice}>Set Price</button>
+                    <button
+                      disabled={isSubmited === 1}
+                      className={`bg-gradient-to-tr from-blue-600 to-pink-600 bg-opacity-10 text-white ${isSubmited === 1 ? 'animate-pulse' : ''}`}
+                      onClick={submitPrice}>
+                      {isSubmited === 1 ? 'Pending..' : 'Set Price'}
+                    </button>
                   </div>
                 }
               </div>
