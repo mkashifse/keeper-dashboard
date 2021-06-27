@@ -9,7 +9,7 @@ import { DataTableV2 } from './DataTable';
 
 function App() {
   const [web3, setWeb3] = useState<any>(null);
-  const [contract, setContract] = useState<any>();
+  const [contract, setContract] = useState<any>(null);
   const [contractEther, setContractEther] = useState('');
   const [accounts, setAccounts] = useState([]);
   const [price, setPrice] = useState('3000000');
@@ -34,6 +34,7 @@ function App() {
       // Get network provider and web3 instance.
       const web3: any = await getWeb3();
       setWeb3(web3);
+
       // const acs = await web3.eth.getAccounts();
       // web3.eth.defaultAccount = acs[0];
       // setAccounts(acs);
@@ -48,14 +49,15 @@ function App() {
         contractAddress
       );
       setContract(instance);
+      startEventsDataPolling(instance);
     }
     init();
   }, []);
 
   useEffect(() => {
+    console.log('calling')
     startEventsDataPolling();
-
-  }, [contract, gas, accounts]);
+  }, [web3, contract, gas, contract]);
 
   useEffect(() => {
     onSetFilteredWinData();
@@ -75,10 +77,12 @@ function App() {
         abi,
         contractAddress
       );
-      setWeb3(web3);
-      setWalletAccounts(acs);
-      selectWalletAccount(acs[0]);
-      setContract(instance);
+      if (web3) {
+        setWeb3(web3);
+        setWalletAccounts(acs);
+        selectWalletAccount(acs[0]);
+        setContract(instance);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -104,9 +108,10 @@ function App() {
     }
   }
 
-  const fetchPastNewData = async () => {
-    if (contract) {
-      contract.getPastEvents('NewData', {
+  const fetchPastNewData = async (instance = null) => {
+    let cont = contract ? contract : instance;
+    if (cont) {
+      cont.getPastEvents('NewData', {
         filter: { myIndexedParam: [0, 100] }, // Using an array means OR: e.g. 20 or 23
         fromBlock: 0,
         toBlock: 'latest'
@@ -120,9 +125,10 @@ function App() {
     }
   }
 
-  const fetchPastWinnerData = async () => {
-    if (contract) {
-      contract.getPastEvents('Winner', {
+  const fetchPastWinnerData = async (instance = null) => {
+    let cont = contract ? contract : instance;
+    if (cont) {
+      cont.getPastEvents('Winner', {
         filter: { myIndexedParam: [0, 10] }, // Using an array means OR: e.g. 20 or 23
         fromBlock: 0,
         toBlock: 'latest'
@@ -136,12 +142,12 @@ function App() {
     }
   }
 
-  const startEventsDataPolling = () => {
+  const startEventsDataPolling = (instance = null) => {
     if (selectedPage === 'testnet') {
       clearInterval(pol as any);
       const interval = setInterval(async () => {
-        fetchPastWinnerData();
-        fetchPastNewData();
+        fetchPastWinnerData(instance);
+        fetchPastNewData(instance);
         fetchContractValue();
         console.log('loading...!')
       }, 2000);
