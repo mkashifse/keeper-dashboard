@@ -9,7 +9,7 @@ contract FairCrowdPrice {
     }
     
     FairPrice[] public fairPrices;
-    uint256 constant reward = 1000;
+    uint256 constant reward = 0.00000002 ether;
     address  payable test;
     
     event NewData(FairPrice _fp);
@@ -45,6 +45,4 @@ contract FairCrowdPrice {
     function giveReward (address payable to) internal {
         to.transfer(reward);
     }
-    
-    
 }
