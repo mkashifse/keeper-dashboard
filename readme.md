@@ -16,7 +16,7 @@ https://gist.github.com/mkashifse/4449cb83c35fbb8d13dcba69f9eb2c20
 ```
 
 ### About the contract
-Fair Crowd Price contract is Solidity Contract deployed on Renkiby network in which keeper can set price and get rewared. The reward criteria is very simple as it is a demo application. Keeper get rewared as he set price. The contract has 1 Ether Liquidity in total which is used for rewards. 
+Fair Crowd Price contract is Solidity Contract deployed on Renkiby network in which keeper can set price and get rewarded. The reward criteria is very simple as it is a demo application. Keeper get rewarded as he set price. The contract has 1 Ether Liquidity in total which is used for rewards. 
 
 ### About The Application
 There are 2 pages in appliaction. 
