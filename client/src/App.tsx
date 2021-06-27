@@ -191,16 +191,18 @@ function App() {
         <div className="w-full mt-10 p-4 "  >
           <div className="mx-4 p-4 card rounded-b-none bg-white border-b border-blue-200  blur bg-opacity-90 ">
             <div className="flex justify-between pb-4 ">
-              <div className="text-xs flex-grow text-gray-500">
+              <div className="text-xs flex flex-grow text-gray-500">
                 {contract && contract._address}
                 <div className="mr-3">  {contractEther}</div>
               </div>
+
               <div className="flex items-center mr-2 text-sm cursor-pointer">
                 <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
                 <div onClick={e => selectPage('testnet')} className={selectedPage === 'testnet' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Testnet</div>
               </div>
+
             </div>
-            <div className="flex  items-center space-x-2">
+            <div className="flex  items-center">
               <div className="space-x-2">
                 {
                   selectedPage === 'local' &&
@@ -218,8 +220,19 @@ function App() {
                   <option value="priceData">New Data</option>
                   <option value="winningData">Winner Data</option>
                 </select>
+
               </div>
-              <div className="flex-grow flex items-center  justify-end text-sm space-x-4">
+              <div className="flex-grow  p-2">
+                {
+                  selectedPage === 'testnet' &&
+                  <div className="flex space-x-2  justify-center">
+                    <input type="text" placeholder="price" value={price} onChange={e => setPrice(e.target.value)} />
+                    <button onClick={submitPrice}>SetPrice</button>
+                  </div>
+                }
+              </div>
+
+              <div className="flex items-center  justify-end text-sm space-x-4">
                 <div className="bg-yellow-600 text-white p-1 px-4 rounded"> Rate: {getWinRate()}</div>
                 <div className="bg-green-500 text-white p-1 px-4 rounded"> Won: {u.fromWei(totalWin())}</div>
                 <div className="bg-red-600 text-white p-1 px-4 rounded "> Gas Spent: {u.fromWei(totalGas())}</div>
