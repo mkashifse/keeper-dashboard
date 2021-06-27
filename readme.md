@@ -26,7 +26,8 @@ There are 2 pages in appliaction.
 2. The second page is live connected with blockchain to Renkidy Network. You must have metamask to connect to the network. You can also set price from your user and the dashboard will load the data as it pushed to blockchain.
 
 ### Turrfle React Client 
-The frontend dashboard is developed in React using tailwindcss for design and ofcource web3 for bloackchain calls and BN for big number calculation.
+The frontend dashboard is developed in React using tailwindcss for design and ofcource web3 for bloackchain calls and BN for big number calculation. All components are custom no third party components and design used.
+
 
 ## Application is live on the following link
 ```
