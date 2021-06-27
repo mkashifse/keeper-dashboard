@@ -54,12 +54,13 @@ function App() {
 
   useEffect(() => {
     startEventsDataPolling();
+
   }, [contract, gas, accounts]);
 
-  useEffect(()=>{
+  useEffect(() => {
     onSetFilteredWinData();
     onSetFilteredNewData();
-  },[selectedPage, keeper, accounts])
+  }, [selectedPage, keeper, accounts])
 
 
 
@@ -113,7 +114,7 @@ function App() {
       }).then((resp: any) => {
         const newData = resp.map((item: any) => ({ ...extractNewData(item.returnValues[0]), trx: item.transactionHash, gas }))
         const addresses = newData.map((item: any) => item.keeper);
-        setAccounts([...Array.from(new Set([...accounts, ...addresses]))] as any)
+        setAccounts([...Array.from(new Set([...accounts, ...addresses]))] as any);
         setKeeperData(newData);
       })
     }
