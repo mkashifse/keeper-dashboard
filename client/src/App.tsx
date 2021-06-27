@@ -22,6 +22,7 @@ function App() {
   const [selectedPage, selectPage] = useState('local');
   const [gas, setGasFee] = useState('');
   const [pol, setPolling] = useState<any>(null);
+  const [isSubmited, setSubmited] = useState(false);
 
 
   useEffect(() => {
@@ -63,9 +64,11 @@ function App() {
 
 
   const submitPrice = async () => {
+    setSubmited(true);
     await contract.methods.setPrice(price).send({
       from: accounts[0]
     });
+    setSubmited(false);
   }
 
   const fetchContractValue = async () => {
@@ -227,7 +230,7 @@ function App() {
                   selectedPage === 'testnet' &&
                   <div className="flex space-x-2  justify-center">
                     <input type="text" placeholder="price" value={price} onChange={e => setPrice(e.target.value)} />
-                    <button onClick={submitPrice}>SetPrice</button>
+                    <button className={`bg-gradient-to-tr from-blue-600 to-pink-600 bg-opacity-10 text-white ${isSubmited ? 'animate-pulse' : ''}`} onClick={submitPrice}>Set Price</button>
                   </div>
                 }
               </div>
