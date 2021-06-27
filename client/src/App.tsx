@@ -132,23 +132,34 @@ function App() {
   }
 
   const getWinningData = () => {
-    const kpr = mockData.keepersMap[keeper];
-    const wData = kpr['winningData'];
-    return wData;
+    if (selectedPage === 'local') {
+      const kpr = mockData.keepersMap[keeper];
+      const wData = kpr['winningData'];
+      return wData;
+    } else {
+      return winnerData;
+    }
   }
 
   const getPriceData = () => {
-    const kpr = mockData.keepersMap[keeper];
-    const pData = kpr['priceData'];
-    return pData;
-
+    if (selectedPage === 'local') {
+      const kpr = mockData.keepersMap[keeper];
+      const pData = kpr['priceData'];
+      return pData;
+    } else {
+      return keeperData;
+    }
   }
 
   const getWinRate = () => {
-    const kpr = mockData.keepersMap[keeper];
-    const pData = kpr['priceData'];
-    const wData = kpr['winningData'];
-    return (wData.length / pData.length).toFixed(4);
+    if (selectedPage === 'local') {
+      const kpr = mockData.keepersMap[keeper];
+      const pData = kpr['priceData'];
+      const wData = kpr['winningData'];
+      return (wData.length / pData.length).toFixed(4);
+    } else {
+      return (winnerData.length / keeperData.length).toFixed(4);
+    }
   }
 
   const sumBnList = (bnList: any[]) => {
