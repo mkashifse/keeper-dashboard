@@ -112,6 +112,7 @@ function App() {
       const interval = setInterval(async () => {
         fetchPastWinnerData();
         fetchPastNewData();
+        fetchContractValue();
         console.log('loading...!')
       }, 2000);
       setPolling(interval);
@@ -197,10 +198,16 @@ function App() {
         <div className="w-full mt-10 p-4 "  >
           <div className="mx-4 p-4 card rounded-b-none bg-white border-b border-blue-200  blur bg-opacity-90 ">
             <div className="flex justify-between pb-4 ">
-              <div className="text-xs flex flex-grow text-gray-500">
-                {contract && contract._address}
-                <div className="mr-3">  {contractEther}</div>
-              </div>
+              {
+                selectedPage === 'testnet' ?
+                  <div className="text-xs flex-grow text-gray-500">
+                    <div>
+                      <span className="font-bold pr-2"> Renkeby Test Net </span> {contract && contract._address}
+                    </div>
+                    <div className="mr-3"> {contractEther}</div>
+                  </div> :
+                  <div className="flex-grow"></div>
+              }
 
               <div className="flex items-center mr-2 text-sm cursor-pointer">
                 <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
@@ -213,7 +220,7 @@ function App() {
                 {
                   selectedPage === 'local' &&
                   <select onChange={e => selectKeeper(e.target.value)}>
-                    {mockData.keepers.map((id:string) => <option key={id} value={id} >{id}</option>)}
+                    {mockData.keepers.map((id: string) => <option key={id} value={id} >{id}</option>)}
                   </select>
                 }
                 {
