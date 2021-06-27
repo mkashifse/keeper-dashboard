@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import mockData from './mockdata.json';
 import web3 from 'web3';
 
-export const DataTable = ({ columns, rows }: any) => {
+export const DataTable = ({ selectedPage, columns, rows }: any) => {
 
     const [frames] = useState(['day', 'week', 'month', 'year']);
     const [timeFrame, setTimeFrame] = useState('day');
@@ -27,10 +27,10 @@ export const DataTable = ({ columns, rows }: any) => {
             const bet = moment(moment.unix(date).format('YYYY/MM/DD')).isBetween(from, today, null, "[]");
             return bet;
         }
-        const list = data.filter((item: any) => isBetween(item.timestamp, filter[timeFrame]));
+        const list = data ? data.filter((item: any) => isBetween(item.timestamp, filter[timeFrame])) : [];
         setFiltered(list);
 
-    }, [data, timeFrame]);
+    }, [data, timeFrame, selectedPage]);
 
     const getCurrentPage = () => {
         return page / pageSize + 1
@@ -152,10 +152,9 @@ export const DataTableV2 = ({ data, columns }: any) => {
             const bet = moment(moment.unix(date).format('YYYY/MM/DD')).isBetween(from, today, null, "[]");
             return bet;
         }
-        const list = data.filter((item: any) => isBetween(item.timestamp, filter[timeFrame]));
+        const list = data && data.length ? data.filter((item: any) => isBetween(item.timestamp, filter[timeFrame])) : [];
         setFiltered(list);
-
-    }, [data, timeFrame]);
+    }, [data, timeFrame, page]);
 
     const getCurrentPage = () => {
         return page / pageSize + 1

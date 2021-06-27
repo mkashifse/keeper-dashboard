@@ -23,9 +23,11 @@ function App() {
   const [pol, setPolling] = useState<any>(null);
   const [isSubmited, setSubmited] = useState(-1);
   const [walletAccounts, setWalletAccounts] = useState([]);
+  const [selectedWalletAccount, selectWalletAccount] = useState('');
+  const [filteredNewData, setFilteredNewData] = useState([]);
+  const [filteredWinData, setFilteredWinData] = useState([]);
   const contractAddress = '0x92dF71B78729FC8CF227Ec749ac98422c1c5f243';// network.address;
   const abi = FariCrowdRenkby; //FairCrowdPrice.abi;
-
 
   useEffect(() => {
     const init = async () => {
@@ -52,12 +54,14 @@ function App() {
 
   useEffect(() => {
     startEventsDataPolling();
-  }, [contract, gas, selectedPage])
+  }, [contract, gas, accounts]);
 
-  const fetchFairPriceList = async () => {
-    if (!contract) return;
-    const resp = await contract.methods.fairPrices(0).call();
-  }
+  useEffect(()=>{
+    onSetFilteredWinData();
+    onSetFilteredNewData();
+  },[selectedPage, keeper, accounts])
+
+
 
   const extractNewData = (v: any) => ({ price: v.price, keeper: v.keeper, timestamp: v.timestamp });
   const extractWinningData = (v: any) => ({ winningAmount: v._reward, keeper: v._keeper, timestamp: v._timestamp });
@@ -72,6 +76,7 @@ function App() {
       );
       setWeb3(web3);
       setWalletAccounts(acs);
+      selectWalletAccount(acs[0]);
       setContract(instance);
     } catch (error) {
       console.log(error);
@@ -83,7 +88,7 @@ function App() {
     if (walletAccounts.length) {
       setSubmited(1);
       await contract.methods.setPrice(price).send({
-        from: walletAccounts[0]
+        from: selectedWalletAccount
       });
       setSubmited(2);
     } else {
@@ -145,7 +150,8 @@ function App() {
 
   // =============== LOCAL MOCK DATA FUNCTIONS
   const getKeeperData = () => {
-    return (mockData.keepersMap as any)[keeper] as any
+    const kpd = (mockData.keepersMap as any)[keeper]
+    return kpd ? kpd as any : {};
   }
 
   const getSelectedDataType = () => {
@@ -166,9 +172,9 @@ function App() {
     if (selectedPage === 'local') {
       const kpr = getKeeperData();
       const wData = kpr['winningData'];
-      return wData;
+      return wData ? wData : [];
     } else {
-      return winnerData;
+      return winnerData ? winnerData : [];
     }
   }
 
@@ -176,10 +182,17 @@ function App() {
     if (selectedPage === 'local') {
       const kpr = getKeeperData();
       const pData = kpr['priceData'];
-      return pData;
+      return pData ? pData : [];
     } else {
       return keeperData;
     }
+  }
+
+  const onSetFilteredNewData = () => {
+    setFilteredNewData(keeperData.filter((item: any) => item.keeper === keeper))
+  }
+  const onSetFilteredWinData = () => {
+    setFilteredNewData(winnerData.filter((item: any) => item.keeper === keeper))
   }
 
   const getWinRate = () => {
@@ -187,7 +200,11 @@ function App() {
       const kpr = getKeeperData();
       const pData = kpr['priceData'];
       const wData = kpr['winningData'];
-      return (wData.length / pData.length).toFixed(4);
+      if (wData && wData.length && pData && pData.length) {
+        return (wData.length / pData.length).toFixed(4);
+      } else {
+        return 0;
+      }
     } else {
       return (winnerData.length / keeperData.length).toFixed(4);
     }
@@ -209,6 +226,20 @@ function App() {
 
   const getNetProfit = () => {
     return u.toBN(totalWin()).sub(u.toBN(totalGas())).toString();
+  }
+
+  const onSelectPage = async (page: string) => {
+    selectPage(page);
+    onSetFilteredNewData();
+    onSetFilteredWinData();
+    if (page === 'testnet') {
+      await connectWallet();
+      selectKeeper(accounts[1]);
+      selectKeeper(accounts[0]);
+    } else {
+      selectKeeper(mockData.keepers[1]);
+      selectKeeper(mockData.keepers[0]);
+    }
   }
 
   return (
@@ -234,10 +265,26 @@ function App() {
 
               <div className="mr-2 text-sm cursor-pointer">
                 <div className="flex items-center justify-end">
-                  <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
-                  <div onClick={e => selectPage('testnet') as any || connectWallet()} className={selectedPage === 'testnet' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Testnet</div>
+                  <div
+                    onClick={e => onSelectPage('local')}
+                    className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
+                  <div
+                    onClick={e => onSelectPage('testnet')}
+                    className={selectedPage === 'testnet' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Testnet</div>
                 </div>
-                <div className="text-xs mt-2">{walletAccounts[0]}</div>
+                {
+                  walletAccounts.length ?
+                    <div className="text-xs mt-2">
+                      <select
+                        onChange={e => selectWalletAccount(e.target.value)}
+                        className="text-xs p-1 h-8 bg-opacity-5">
+                        {walletAccounts.map((item, i) => (
+                          <option key={i} value={item}>{item}</option>
+                        ))}
+                      </select>
+                    </div>
+                    : ''
+                }
               </div>
 
             </div>
@@ -309,14 +356,14 @@ function App() {
                 dataType === 'priceData' &&
                 <div className="card rounded-t-none">
                   New Data
-                  <DataTableV2 columns={['trx', 'gas', 'keeper', 'price', 'timestamp']} data={keeperData} />
+                  <DataTableV2 selectedPage={selectedPage} columns={['trx', 'gas', 'keeper', 'price', 'timestamp']} data={filteredNewData} />
                 </div>
               }
               {
                 dataType === 'winningData' &&
                 <div className="card rounded-t-none">
                   Winner Date
-                  <DataTableV2 columns={['trx', 'keeper', 'winningAmount', 'timestamp']} data={winnerData} />
+                  <DataTableV2 selectedPage={selectedPage} columns={['trx', 'keeper', 'winningAmount', 'timestamp']} data={filteredWinData} />
                 </div>
               }
             </main>
