@@ -179,7 +179,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
         return frames.map((item: any) => (
             <div
                 key={item}
-                className={`rounded px-4 h-6 hover:bg-blue-300  flex capitalize ${timeFrame === item ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+                className={`rounded px-4 h-6 hover:bg-blue-300  flex capitalize ${timeFrame === item ? 'bg-blue-600 text-white' : 'bg-blue-100'}`}
                 onClick={(e: any) => setTimeFrame(item) as any || setPage(0)} >
                 <div className="m-auto">
                     {item}
@@ -206,12 +206,12 @@ export const DataTableV2 = ({ data, columns }: any) => {
         return (
             <div className="flex items-center">
                 <div className="flex items-center">
-                    <div onClick={prev} className="h-6 w-8 rounded-l flex bg-gray-100 hover:bg-green-300">
+                    <div onClick={prev} className="h-6 w-8 rounded-l flex bg-blue-100 hover:bg-green-300">
                         <div className="m-auto">
                             {`<`}
                         </div>
                     </div>
-                    <div className="h-6 px-4 flex bg-gray-100">
+                    <div className="h-6 px-4 flex bg-blue-100">
                         <div className="m-auto text-xs text-gray-600 font-bold" onClick={e => setPage(0)}>
                             <span>  {getCurrentPage()} </span>
                             <span> / </span>
@@ -220,7 +220,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
                     </div>
                     <div
                         onClick={next}
-                        className="h-6 w-8 rounded-r flex bg-gray-100 hover:bg-green-300">
+                        className="h-6 w-8 rounded-r flex bg-blue-100 hover:bg-green-300">
                         <div className="m-auto">
                             {`>`}
                         </div>
@@ -237,7 +237,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
         }}>
             <div className="flex text-sm space-x-2 justify-end cursor-pointer">
                 {TimeFrameControls()} {PagesControl()}
-                <div className="h-6 w-32 text-center bg-gray-100 rounded" style={{ paddingTop: '2px' }}> {filtered.length}  </div>
+                <div className="h-6 w-32 text-center bg-blue-100 rounded" style={{ paddingTop: '2px' }}> {filtered.length}  </div>
             </div>
             {
                 filtered.length ?

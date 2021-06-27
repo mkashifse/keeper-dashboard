@@ -158,22 +158,26 @@ function App() {
 
   if (web3 && contract) {
     return (
-      <div>
+      <div className="flex min-h-screen bg-cover"
+        style={{
+          backgroundImage: 'url(./bg.png)',
+        }}
+      >
         {
           contract &&
-          < div className="bg-gray-100 w-full min-h-screen space-y-4" >
-            <div className=" border p-4 flex justify-between">
-              <div className="text-xs flex-grow text-gray-500">
-                {contract._address}
-                <div className="mr-3">  {contractEther}</div>
+          <div className="w-full mt-10 p-4 "  >
+            <div className="mx-4 p-4 card rounded-b-none bg-blue-100 blur bg-opacity-80">
+              <div className="flex justify-between pb-4 ">
+                <div className="text-xs flex-grow text-gray-500">
+                  {contract._address}
+                  <div className="mr-3">  {contractEther}</div>
+                </div>
+                <div className="flex items-center mr-2 text-sm cursor-pointer">
+                  <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
+                  <div onClick={e => selectPage('blockchain')} className={selectedPage === 'blockchain' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Blockchain</div>
+                </div>
               </div>
-              <div className="flex items-center mr-2 text-sm cursor-pointer">
-                <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white' : 'bg-gray-200 p-1 px-4'}>Local Mock Data</div>
-                <div onClick={e => selectPage('blockchain')} className={selectedPage === 'blockchain' ? 'bg-blue-600 border p-1 px-4 text-white' : 'bg-gray-200 p-1 px-4'}>Blockchain</div>
-              </div>
-            </div>
-            <div className="px-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex  items-center space-x-2">
                 <div className="space-x-2">
                   <select onChange={e => selectKeeper(e.target.value)}>
                     {mockData.keepers.map((id) => <option value={id} >{id}</option>)}
@@ -193,12 +197,12 @@ function App() {
             </div>
 
             {selectedPage === 'local' &&
-              < main className="p-4">
+              < main className="px-4">
                 <div>
                   <div>
 
                   </div>
-                  <div className="card">
+                  <div className="card rounded-t-none">
 
                     {
                       web3 && mockData ?
@@ -211,17 +215,17 @@ function App() {
             }
             {
               selectedPage === 'blockchain' &&
-              <main className="p-4 space-y-4 ">
+              <main className="px-4 ">
                 {
                   dataType === 'priceData' &&
-                  <div className="card">
+                  <div className="card rounded-t-none">
                     New Data
                     <DataTableV2 columns={['trx', 'keeper', 'price', 'timestamp']} data={keeperData} />
                   </div>
                 }
                 {
                   dataType === 'winningData' &&
-                  <div className="card">
+                  <div className="card rounded-t-none">
                     Winner Date
                     <DataTableV2 columns={['trx', 'keeper', 'winningAmount', 'timestamp']} data={winnerData} />
                   </div>
