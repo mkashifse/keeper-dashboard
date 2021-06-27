@@ -19,7 +19,7 @@ function App() {
   const [mockData] = useState(mapKeepersData());
   const [keeper, selectKeeper] = useState(mockData.keepers[0]);
   const [dataType, setDataType] = useState('priceData');
-  const [selectedPage, selectPage] = useState('testnet');
+  const [selectedPage, selectPage] = useState('local');
   const [gas, setGasFee] = useState('');
   const [pol, setPolling] = useState<any>(null);
 
@@ -51,7 +51,7 @@ function App() {
 
   useEffect(() => {
     startEventsDataPolling();
-  }, [contract, gas])
+  }, [contract, gas, selectedPage])
 
   const fetchFairPriceList = async () => {
     if (!contract) return;
@@ -78,26 +78,15 @@ function App() {
   const fetchPastNewData = async () => {
     if (contract) {
       contract.getPastEvents('NewData', {
-        filter: { myIndexedParam: [0, 10] }, // Using an array means OR: e.g. 20 or 23
+        filter: { myIndexedParam: [0, 100] }, // Using an array means OR: e.g. 20 or 23
         fromBlock: 0,
         toBlock: 'latest'
       }, (error: any, event: any) => {
       }).then((resp: any) => {
         const newData = resp.map((item: any) => ({ ...extractNewData(item.returnValues[0]), trx: item.transactionHash, gas }))
-        console.log(newData);
         setKeeperData(newData);
       })
     }
-  }
-
-  const startEventsDataPolling = () => {
-    clearInterval(pol as any);
-    const interval = setInterval(async () => {
-      fetchPastWinnerData();
-      fetchPastNewData();
-      console.log('loading...!')
-    }, 2000);
-    setPolling(interval);
   }
 
   const fetchPastWinnerData = async () => {
@@ -114,6 +103,17 @@ function App() {
     }
   }
 
+  const startEventsDataPolling = () => {
+    if (selectedPage === 'testnet') {
+      clearInterval(pol as any);
+      const interval = setInterval(async () => {
+        fetchPastWinnerData();
+        fetchPastNewData();
+        console.log('loading...!')
+      }, 2000);
+      setPolling(interval);
+    }
+  }
 
   // =============== LOCAL MOCK DATA FUNCTIONS
 
@@ -252,7 +252,7 @@ function App() {
                 dataType === 'priceData' &&
                 <div className="card rounded-t-none">
                   New Data
-                  <DataTableV2 columns={['trx', 'keeper', 'price', 'gas', 'timestamp',]} data={keeperData} />
+                  <DataTableV2 columns={['trx', 'gas', 'keeper', 'price', 'timestamp']} data={keeperData} />
                 </div>
               }
               {
@@ -267,18 +267,7 @@ function App() {
         </div >
       }
     </div >
-
   );
-  // return (
-  //   <div className="bg-gray-200 flex h-screen w-screen">
-  //     <div className="m-auto">
-  //       Loadding...
-  //     </div>
-  //   </div>
-  // )
-
-
-
 }
 
 export default App;

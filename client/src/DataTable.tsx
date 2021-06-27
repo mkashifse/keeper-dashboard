@@ -166,7 +166,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
     }
 
     const getValue = (key: string, value: any) => {
-        if (key === 'price' || key === 'winningAmount' || 'gas') {
+        if (key === 'price' || key === 'winningAmount' || key === 'gas') {
             return value ? web3.utils.fromWei(value + '') : value;
         } if (key === 'timestamp') {
             return format(value);
