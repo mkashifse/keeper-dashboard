@@ -204,7 +204,7 @@ function App() {
                     <div>
                       <span className="font-bold pr-2"> Renkeby Test Net </span> {contract && contract._address}
                     </div>
-                    <div className="mr-3"> {contractEther}</div>
+                    <div className="mr-3"> { u.fromWei(contractEther)} Ether</div>
                   </div> :
                   <div className="flex-grow"></div>
               }
