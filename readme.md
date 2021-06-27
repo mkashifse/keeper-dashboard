@@ -18,10 +18,11 @@ https://gist.github.com/mkashifse/4449cb83c35fbb8d13dcba69f9eb2c20
 ### About the contract
 Fair Crowd Price contract is Solidity Contract deployed on Renkiby network in which keeper can set price and get rewared. The reward criteria is very simple as it is a demo application. Keeper get rewared as he set price. The contract has 1 Ether Liquidity in total which is used for rewards. 
 
-### About Mock Data
+### About The Application
 There are 2 pages in appliaction. 
+#### Mockdata
 1. First page gets data from mockdata.json having 1 year of keepers transactions both NewData and WinnerData. 
-
+#### Renkiby Test Network
 2. The second page is live connected with blockchain to Renkidy Network. You must have metamask to connect to the network. You can also set price from your user and the dashboard will load the data as it pushed to blockchain.
 
 ### Turrfle React Client 
