@@ -62,7 +62,7 @@ function App() {
   useEffect(() => {
     onSetFilteredWinData();
     onSetFilteredNewData();
-  }, [selectedPage, keeper, accounts])
+  }, [selectedPage, keeper, accounts,dataType])
 
 
 
@@ -199,7 +199,7 @@ function App() {
     setFilteredNewData(keeperData.filter((item: any) => item.keeper === keeper))
   }
   const onSetFilteredWinData = () => {
-    setFilteredNewData(winnerData.filter((item: any) => item.keeper === keeper))
+    setFilteredWinData(winnerData.filter((item: any) => item.keeper === keeper))
   }
 
   const getWinRate = () => {
