@@ -166,7 +166,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
     }
 
     const getValue = (key: string, value: any) => {
-        if (key === 'price' || key === 'winningAmount') {
+        if (key === 'price' || key === 'winningAmount' || 'gas') {
             return value ? web3.utils.fromWei(value + '') : value;
         } if (key === 'timestamp') {
             return format(value);
@@ -246,7 +246,7 @@ export const DataTableV2 = ({ data, columns }: any) => {
                             <tr>
                                 {
                                     columns.map((td: any) => (
-                                        <th className="capitalize">{td}</th>
+                                        <th key={td} className="capitalize">{td}</th>
                                     ))
                                 }
                             </tr>

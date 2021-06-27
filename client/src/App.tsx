@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import getWeb3 from './getWeb3';
 import Web3 from 'web3';
 import FairCrowdPrice from './contracts/FairCrowdPrice.json';
-import moment from 'moment';
-import { generateTestData, mapKeepersData, u } from './untils';
-import { DataTable, DataTableV2 } from './DataTable';
+import FariCrowdRenkby from './contracts/FariCrowdRenkby.json';
+import { mapKeepersData, u } from './untils';
+import { DataTableV2 } from './DataTable';
 
 
 function App() {
@@ -19,7 +19,9 @@ function App() {
   const [mockData] = useState(mapKeepersData());
   const [keeper, selectKeeper] = useState(mockData.keepers[0]);
   const [dataType, setDataType] = useState('priceData');
-  const [selectedPage, selectPage] = useState('local')
+  const [selectedPage, selectPage] = useState('testnet');
+  const [gas, setGasFee] = useState('');
+  const [pol, setPolling] = useState<any>(null);
 
 
   useEffect(() => {
@@ -27,27 +29,29 @@ function App() {
       // Get network provider and web3 instance.
       const web3: any = await getWeb3();
       setWeb3(web3);
-      const acs = await web3.eth.getAccounts()
-      web3.eth.defaultAccount = '0x2152e4227c2866d77e4a68cb28371b5082b73aa0';
+      const acs = await web3.eth.getAccounts();
+      web3.eth.defaultAccount = acs[0];
       setAccounts(acs);
       const networkId = await web3.eth.net.getId();
-      const network: any = (FairCrowdPrice.networks as any)[networkId];
-
+      // const network: any = (FairCrowdPrice.networks as any)[networkId];
+      const abi = FariCrowdRenkby; //FairCrowdPrice.abi;
+      const contractAddress = '0x92dF71B78729FC8CF227Ec749ac98422c1c5f243';// network.address;
+      web3.eth.getGasPrice((e: any, r: any) => {
+        setGasFee(r);
+      })
       // Get the contract instance.
       const instance = new web3.eth.Contract(
-        FairCrowdPrice.abi,
-        network && network.address
+        abi,
+        contractAddress
       );
       setContract(instance);
-      fetchPastNewData(instance);
     }
     init();
   }, []);
 
   useEffect(() => {
-    fetchFairPriceList();
-    fetchPastWinnerData();
-  }, [contract])
+    startEventsDataPolling();
+  }, [contract, gas])
 
   const fetchFairPriceList = async () => {
     if (!contract) return;
@@ -62,7 +66,6 @@ function App() {
     await contract.methods.setPrice(price).send({
       from: accounts[0]
     });
-    fetchPastNewData(contract);
   }
 
   const fetchContractValue = async () => {
@@ -72,17 +75,29 @@ function App() {
     }
   }
 
-  const fetchPastNewData = async (instance: any) => {
-    instance.getPastEvents('NewData', {
-      filter: { myIndexedParam: [0, 10] }, // Using an array means OR: e.g. 20 or 23
-      fromBlock: 0,
-      toBlock: 'latest'
-    }, (error: any, event: any) => {
-    }).then((resp: any) => {
-      const newData = resp.map((item: any) => ({ ...extractNewData(item.returnValues[0]), trx: item.transactionHash }))
-      setKeeperData(newData);
-    })
+  const fetchPastNewData = async () => {
+    if (contract) {
+      contract.getPastEvents('NewData', {
+        filter: { myIndexedParam: [0, 10] }, // Using an array means OR: e.g. 20 or 23
+        fromBlock: 0,
+        toBlock: 'latest'
+      }, (error: any, event: any) => {
+      }).then((resp: any) => {
+        const newData = resp.map((item: any) => ({ ...extractNewData(item.returnValues[0]), trx: item.transactionHash, gas }))
+        console.log(newData);
+        setKeeperData(newData);
+      })
+    }
+  }
 
+  const startEventsDataPolling = () => {
+    clearInterval(pol as any);
+    const interval = setInterval(async () => {
+      fetchPastWinnerData();
+      fetchPastNewData();
+      console.log('loading...!')
+    }, 2000);
+    setPolling(interval);
   }
 
   const fetchPastWinnerData = async () => {
@@ -94,7 +109,6 @@ function App() {
       }, (error: any, event: any) => {
       }).then((resp: any) => {
         const winData = resp.map((item: any) => ({ ...extractWinningData(item.returnValues), trx: item.transactionHash }))
-        console.log(resp, winData);
         setWinnerData(winData);
       })
     }
@@ -156,96 +170,101 @@ function App() {
   }
 
 
-  if (web3 && contract) {
-    return (
-      <div className="flex min-h-screen bg-cover"
-        style={{
-          backgroundImage: 'url(./bg.png)',
-        }}
-      >
-        {
-          contract &&
-          <div className="w-full mt-10 p-4 "  >
-            <div className="mx-4 p-4 card rounded-b-none bg-white border-b border-blue-200  blur bg-opacity-90 ">
-              <div className="flex justify-between pb-4 ">
-                <div className="text-xs flex-grow text-gray-500">
-                  {contract._address}
-                  <div className="mr-3">  {contractEther}</div>
-                </div>
-                <div className="flex items-center mr-2 text-sm cursor-pointer">
-                  <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
-                  <div onClick={e => selectPage('blockchain')} className={selectedPage === 'blockchain' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Blockchain</div>
-                </div>
+  return (
+    <div className="flex min-h-screen bg-cover"
+      style={{
+        backgroundImage: 'url(./bg.png)',
+      }}
+    >
+      {
+        <div className="w-full mt-10 p-4 "  >
+          <div className="mx-4 p-4 card rounded-b-none bg-white border-b border-blue-200  blur bg-opacity-90 ">
+            <div className="flex justify-between pb-4 ">
+              <div className="text-xs flex-grow text-gray-500">
+                {contract && contract._address}
+                <div className="mr-3">  {contractEther}</div>
               </div>
-              <div className="flex  items-center space-x-2">
-                <div className="space-x-2">
-                  <select onChange={e => selectKeeper(e.target.value)}>
-                    {mockData.keepers.map((id) => <option value={id} >{id}</option>)}
-                  </select>
-                  <select onChange={(e) => setDataType(e.target.value)} >
-                    <option value="priceData">Price Data</option>
-                    <option value="winningData">Winning Data</option>
-                  </select>
-                </div>
-                <div className="flex-grow flex items-center  justify-end text-sm space-x-4">
-                  <div className="bg-yellow-600 text-white p-1 px-4 rounded"> Rate: {getWinRate()}</div>
-                  <div className="bg-green-500 text-white p-1 px-4 rounded"> Won: {u.fromWei(totalWin())}</div>
-                  <div className="bg-red-600 text-white p-1 px-4 rounded "> Gas Spent: {u.fromWei(totalGas())}</div>
-                  <div className="bg-green-600 text-white p-1 px-4 rounded "> Net Profit: {u.fromWei(getNetProfit())}</div>
-                </div>
+              <div className="flex items-center mr-2 text-sm cursor-pointer">
+                <div onClick={e => selectPage('local')} className={selectedPage === 'local' ? 'bg-blue-600 border p-1 px-4 text-white rounded' : 'bg-blue-200 rounded p-1 px-4'}>Local Mock Data</div>
+                <div onClick={e => selectPage('testnet')} className={selectedPage === 'testnet' ? 'bg-blue-600 border p-1 px-4 rounded text-white' : 'bg-blue-200 rounded p-1 px-4'}>Testnet</div>
               </div>
             </div>
+            <div className="flex  items-center space-x-2">
+              <div className="space-x-2">
+                {
+                  selectedPage === 'local' &&
+                  <select onChange={e => selectKeeper(e.target.value)}>
+                    {mockData.keepers.map((id) => <option key={id} value={id} >{id}</option>)}
+                  </select>
+                }
+                {
+                  selectedPage === 'testnet' &&
+                  <select onChange={e => selectKeeper(e.target.value)}>
+                    {accounts.map((id) => <option key={id} value={id} >{id}</option>)}
+                  </select>
+                }
+                <select onChange={(e) => setDataType(e.target.value)} >
+                  <option value="priceData">New Data</option>
+                  <option value="winningData">Winner Data</option>
+                </select>
+              </div>
+              <div className="flex-grow flex items-center  justify-end text-sm space-x-4">
+                <div className="bg-yellow-600 text-white p-1 px-4 rounded"> Rate: {getWinRate()}</div>
+                <div className="bg-green-500 text-white p-1 px-4 rounded"> Won: {u.fromWei(totalWin())}</div>
+                <div className="bg-red-600 text-white p-1 px-4 rounded "> Gas Spent: {u.fromWei(totalGas())}</div>
+                <div className="bg-green-600 text-white p-1 px-4 rounded "> Net Profit: {u.fromWei(getNetProfit())}</div>
+              </div>
+            </div>
+          </div>
 
-            {selectedPage === 'local' &&
-              < main className="px-4">
+          {selectedPage === 'local' &&
+            < main className="px-4">
+              <div>
                 <div>
-                  <div>
 
-                  </div>
-                  <div className="card rounded-t-none">
-
-                    {
-                      web3 && mockData ?
-                        <DataTableV2 columns={getSelectedDataType().columns} data={getSelectedDataType().data} />
-                        : ''
-                    }
-                  </div>
                 </div>
-              </main>
-            }
-            {
-              selectedPage === 'blockchain' &&
-              <main className="px-4 ">
-                {
-                  dataType === 'priceData' &&
-                  <div className="card rounded-t-none">
-                    New Data
-                    <DataTableV2 columns={['trx', 'keeper', 'price', 'timestamp']} data={keeperData} />
-                  </div>
-                }
-                {
-                  dataType === 'winningData' &&
-                  <div className="card rounded-t-none">
-                    Winner Date
-                    <DataTableV2 columns={['trx', 'keeper', 'winningAmount', 'timestamp']} data={winnerData} />
-                  </div>
-                }
-              </main>
-            }
-          </div >
-        }
-      </div >
+                <div className="card rounded-t-none">
 
-    );
-  } else {
-    return (
-      <div className="bg-gray-200 flex h-screen w-screen">
-        <div className="m-auto">
-          Loadding...
-        </div>
-      </div>
-    )
-  }
+                  {
+                    web3 && mockData ?
+                      <DataTableV2 columns={getSelectedDataType().columns} data={getSelectedDataType().data} />
+                      : ''
+                  }
+                </div>
+              </div>
+            </main>
+          }
+          {
+            selectedPage === 'testnet' &&
+            <main className="px-4 ">
+              {
+                dataType === 'priceData' &&
+                <div className="card rounded-t-none">
+                  New Data
+                  <DataTableV2 columns={['trx', 'keeper', 'price', 'gas', 'timestamp',]} data={keeperData} />
+                </div>
+              }
+              {
+                dataType === 'winningData' &&
+                <div className="card rounded-t-none">
+                  Winner Date
+                  <DataTableV2 columns={['trx', 'keeper', 'winningAmount', 'timestamp']} data={winnerData} />
+                </div>
+              }
+            </main>
+          }
+        </div >
+      }
+    </div >
+
+  );
+  // return (
+  //   <div className="bg-gray-200 flex h-screen w-screen">
+  //     <div className="m-auto">
+  //       Loadding...
+  //     </div>
+  //   </div>
+  // )
 
 
 
