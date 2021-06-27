@@ -166,7 +166,7 @@ function App() {
         {
           contract &&
           <div className="w-full mt-10 p-4 "  >
-            <div className="mx-4 p-4 card rounded-b-none bg-blue-100 blur bg-opacity-80">
+            <div className="mx-4 p-4 card rounded-b-none bg-white border-b border-blue-200  blur bg-opacity-90 ">
               <div className="flex justify-between pb-4 ">
                 <div className="text-xs flex-grow text-gray-500">
                   {contract._address}
