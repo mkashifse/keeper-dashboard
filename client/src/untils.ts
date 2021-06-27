@@ -65,7 +65,6 @@ export const mapKeepersData = () => {
     //     keepersMap,
     //     ...data
     // };
-    console.log(mockData)
     return  mockData;
 
 }
