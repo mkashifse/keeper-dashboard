@@ -15,11 +15,6 @@ Gist link for FairCrowdPrice Contract
 https://gist.github.com/mkashifse/4449cb83c35fbb8d13dcba69f9eb2c20
 ```
 
-## Application is availible online on the following link
-```
-https://keeperdashboaddapp.web.app/
-```
-
 ### About the contract
 Fair Crowd Price contract is Solidity Contract deployed on Renkiby network in which keeper can set price and get rewared. The reward criteria is very simple as it is a demo application. Keeper get rewared as he set price. The contract has 1 Ether Liquidity in total which is used for rewards. 
 
@@ -32,8 +27,14 @@ There are 2 pages in appliaction.
 ### Turrfle React Client 
 The frontend dashboard is developed in React using tailwindcss for design and ofcource web3 for bloackchain calls and BN for big number calculation.
 
+## Application is availible online on the following link
+```
+https://keeperdashboaddapp.web.app/
+```
 
-FairCrowdPrice Contract Abi
+
+
+### FairCrowdPrice Contract Abi
 ```
 [
 	{
