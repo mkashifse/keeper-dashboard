@@ -2,6 +2,8 @@ import { v4 } from 'uuid';
 import moment from 'moment';
 import Web3 from 'web3';
 
+import mockData from './mockdata.json';
+
 export const u ={
     ...Web3.utils
 }
@@ -46,22 +48,24 @@ export const generateTestData = () => {
 
 
 export const mapKeepersData = () => {
-    const data = generateTestData();
+    // const data = generateTestData();
 
-    const keepersMap: any = {};
+    // const keepersMap: any = {};
 
-    data.keepers.forEach((item) => {
-        const priceData = data.priceData.filter((pitem) => pitem.keeper === item);
-        const winningData = data.winningData.filter((pitem) => pitem.keeper === item);
-        keepersMap[item] = {
-            priceData,
-            winningData
-        }
-    })
+    // data.keepers.forEach((item) => {
+    //     const priceData = data.priceData.filter((pitem) => pitem.keeper === item);
+    //     const winningData = data.winningData.filter((pitem) => pitem.keeper === item);
+    //     keepersMap[item] = {
+    //         priceData,
+    //         winningData
+    //     }
+    // })
 
-    return {
-        keepersMap,
-        ...data
-    };
+    // const d =  {
+    //     keepersMap,
+    //     ...data
+    // };
+    console.log(mockData)
+    return  mockData;
 
 }

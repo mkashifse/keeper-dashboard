@@ -8,7 +8,7 @@ export const DataTable = ({ columns, rows }: any) => {
     const [frames] = useState(['day', 'week', 'month', 'year']);
     const [timeFrame, setTimeFrame] = useState('day');
     const [filtered, setFiltered] = useState<any[]>([]);
-    const [data] = useState(mockData);
+    const [data] = useState<any>(mockData);
     let [page, setPage] = useState(0);
     const [pageSize] = useState(50);
 

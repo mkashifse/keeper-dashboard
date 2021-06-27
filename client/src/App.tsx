@@ -16,8 +16,8 @@ function App() {
   const [price, setPrice] = useState('3000000');
   const [keeperData, setKeeperData] = useState([]);
   const [winnerData, setWinnerData] = useState([]);
-  const [mockData] = useState(mapKeepersData());
-  const [keeper, selectKeeper] = useState(mockData.keepers[0]);
+  const [mockData] = useState<any>(mapKeepersData());
+  const [keeper, selectKeeper] = useState(mockData.keepers[0] as any);
   const [dataType, setDataType] = useState('priceData');
   const [selectedPage, selectPage] = useState('local');
   const [gas, setGasFee] = useState('');
@@ -119,11 +119,14 @@ function App() {
   }
 
   // =============== LOCAL MOCK DATA FUNCTIONS
+  const getKeeperData = () => {
+    return (mockData.keepersMap as any)[keeper] as any
+  }
 
   const getSelectedDataType = () => {
-    if (dataType && mockData.keepersMap[keeper]) {
+    if (dataType && getKeeperData()) {
       return {
-        data: mockData.keepersMap[keeper][dataType],
+        data: getKeeperData()[dataType],
         columns: dataType === 'priceData' ? ['trx', 'gas', 'keeper', 'price', 'timestamp'] : ['trx', 'keeper', 'winningAmount', 'timestamp']
       };
     } else {
@@ -136,7 +139,7 @@ function App() {
 
   const getWinningData = () => {
     if (selectedPage === 'local') {
-      const kpr = mockData.keepersMap[keeper];
+      const kpr = getKeeperData();
       const wData = kpr['winningData'];
       return wData;
     } else {
@@ -146,7 +149,7 @@ function App() {
 
   const getPriceData = () => {
     if (selectedPage === 'local') {
-      const kpr = mockData.keepersMap[keeper];
+      const kpr = getKeeperData();
       const pData = kpr['priceData'];
       return pData;
     } else {
@@ -156,7 +159,7 @@ function App() {
 
   const getWinRate = () => {
     if (selectedPage === 'local') {
-      const kpr = mockData.keepersMap[keeper];
+      const kpr = getKeeperData();
       const pData = kpr['priceData'];
       const wData = kpr['winningData'];
       return (wData.length / pData.length).toFixed(4);
@@ -210,7 +213,7 @@ function App() {
                 {
                   selectedPage === 'local' &&
                   <select onChange={e => selectKeeper(e.target.value)}>
-                    {mockData.keepers.map((id) => <option key={id} value={id} >{id}</option>)}
+                    {mockData.keepers.map((id:string) => <option key={id} value={id} >{id}</option>)}
                   </select>
                 }
                 {
