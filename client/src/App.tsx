@@ -28,6 +28,7 @@ function App() {
   const [filteredWinData, setFilteredWinData] = useState([]);
   const contractAddress = '0x92dF71B78729FC8CF227Ec749ac98422c1c5f243';// network.address;
   const abi = FariCrowdRenkby; //FairCrowdPrice.abi;
+  const [isShowAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -62,7 +63,7 @@ function App() {
   useEffect(() => {
     onSetFilteredWinData();
     onSetFilteredNewData();
-  }, [selectedPage, keeper, accounts,dataType])
+  }, [selectedPage, keeper, accounts, dataType])
 
 
 
@@ -164,7 +165,7 @@ function App() {
   const getSelectedDataType = () => {
     if (dataType && getKeeperData()) {
       return {
-        data: getKeeperData()[dataType],
+        data: isShowAll ? mockData[dataType] : getKeeperData()[dataType],
         columns: dataType === 'priceData' ? ['trx', 'gas', 'keeper', 'price', 'timestamp'] : ['trx', 'keeper', 'winningAmount', 'timestamp']
       };
     } else {
@@ -196,10 +197,18 @@ function App() {
   }
 
   const onSetFilteredNewData = () => {
-    setFilteredNewData(keeperData.filter((item: any) => item.keeper === keeper))
+    if (isShowAll) {
+      setFilteredNewData(keeperData);
+    } else {
+      setFilteredNewData(keeperData.filter((item: any) => item.keeper === keeper))
+    }
   }
   const onSetFilteredWinData = () => {
-    setFilteredWinData(winnerData.filter((item: any) => item.keeper === keeper))
+    if (isShowAll) {
+      setFilteredWinData(winnerData);
+    } else {
+      setFilteredWinData(winnerData.filter((item: any) => item.keeper === keeper))
+    }
   }
 
   const getWinRate = () => {
@@ -297,14 +306,18 @@ function App() {
             </div>
             <div className="flex  items-center">
               <div className="space-x-2">
+                <div className="items-center cursor-pointer px-4 flex text-sm space-x-3">
+                  <input id="check" type="checkbox" onChange={e => setShowAll(e.target.checked)} />
+                  <label htmlFor="check">Show All</label>
+                </div>
                 {
-                  selectedPage === 'local' &&
+                  selectedPage === 'local' &&  !isShowAll &&
                   <select onChange={e => selectKeeper(e.target.value)}>
                     {mockData.keepers.map((id: string) => <option key={id} value={id} >{id}</option>)}
                   </select>
                 }
                 {
-                  selectedPage === 'testnet' &&
+                  selectedPage === 'testnet' && !isShowAll &&
                   <select onChange={e => selectKeeper(e.target.value)}>
                     {accounts.map((id) => <option key={id} value={id} >{id}</option>)}
                   </select>
